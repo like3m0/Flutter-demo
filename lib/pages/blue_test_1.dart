@@ -116,7 +116,7 @@ class _BlueTestState extends State<BlueTestPage> {
                 MaterialButton(
                   onPressed: () {
                     print("tap button 1");
-                    AppSettings.openBluetoothSettings();
+                    AppSettings.openAppSettings(type: AppSettingsType.bluetooth);
                   },
                   child: new Text("设置蓝牙"),
                   color: Colors.blue,

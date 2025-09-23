@@ -75,7 +75,9 @@ class ChineseCupertinoLocalizations implements CupertinoLocalizations {
   String datePickerMonth(int monthIndex) => _months[monthIndex - 1];
 
   @override
-  String datePickerDayOfMonth(int dayIndex) => dayIndex.toString() + "日";
+  String datePickerDayOfMonth(int dayIndex, [int? weekDayIndex]) {
+    return '$dayIndex日';
+  }
 
   @override
   String datePickerHour(int hour) => hour.toString();
@@ -166,7 +168,7 @@ class ChineseCupertinoLocalizations implements CupertinoLocalizations {
   String get modalBarrierDismissLabel => throw UnimplementedError();
 
   @override
-  String tabSemanticsLabel({int tabIndex, int tabCount}) {
+  String tabSemanticsLabel({required int tabIndex, required int tabCount}) {
     // implement tabSemanticsLabel
     throw UnimplementedError();
   }
@@ -186,4 +188,42 @@ class ChineseCupertinoLocalizations implements CupertinoLocalizations {
   @override
   // TODO: implement timerPickerSecondLabels
   List<String> get timerPickerSecondLabels => throw UnimplementedError();
+
+  @override
+  // TODO: implement backButtonLabel
+  String get backButtonLabel => throw UnimplementedError();
+
+  @override
+  // TODO: implement cancelButtonLabel
+  String get cancelButtonLabel => throw UnimplementedError();
+
+  @override
+  // TODO: implement clearButtonLabel
+  String get clearButtonLabel => throw UnimplementedError();
+
+  @override
+  String datePickerStandaloneMonth(int monthIndex) {
+    // TODO: implement datePickerStandaloneMonth
+    throw UnimplementedError();
+  }
+
+  @override
+  // TODO: implement lookUpButtonLabel
+  String get lookUpButtonLabel => throw UnimplementedError();
+
+  @override
+  // TODO: implement menuDismissLabel
+  String get menuDismissLabel => throw UnimplementedError();
+
+  @override
+  // TODO: implement noSpellCheckReplacementsLabel
+  String get noSpellCheckReplacementsLabel => throw UnimplementedError();
+
+  @override
+  // TODO: implement searchWebButtonLabel
+  String get searchWebButtonLabel => throw UnimplementedError();
+
+  @override
+  // TODO: implement shareButtonLabel
+  String get shareButtonLabel => throw UnimplementedError();
 }

@@ -31,7 +31,7 @@ class _SettingPageState extends State<SettingPage> {
     var h = ScreenUtil.getScreenH(ctx);
     var w = ScreenUtil.getScreenW(ctx);
     var margin = 10;
-    var width = 330;
+    var width = 330.0;
     if (w / h > 0.52) {
       margin = 0;
       width = 310;

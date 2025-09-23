@@ -26,14 +26,14 @@ class _BalancePageState extends State<BalancePage> {
   Color activeTrackBarColor = Color(0xFF0B90D9);
   Color inactiveTrackBarColor = Color(0xFFFF5E21);
   bool isDragging = false;
-  Timer tDragging = null;
-  Timer tDragging1 = null;
-  Timer tDragging2 = null;
+  Timer? tDragging = null;
+  Timer? tDragging1 = null;
+  Timer? tDragging2 = null;
   int dragBar = -1;
 
   bool centerButtonPressed = false;
 
-  AudioStatus au = null;
+  AudioStatus? au = null;
 
   @override
   void initState() {
@@ -84,7 +84,7 @@ class _BalancePageState extends State<BalancePage> {
       usableHeight -= 10;
     }
     // usableHeight = 280;
-    var gridSize = (usableHeight * 290 / 335).floor();
+    var gridSize = (usableHeight * 290 / 335).floorToDouble();
     var fontSize = (16 * usableHeight / 335).floor();
     var space = (gridSize / 22).floor();
     var begin = ((gridSize % 22) / 2).floor();
@@ -97,7 +97,7 @@ class _BalancePageState extends State<BalancePage> {
     // print("ratio:${ScreenUtil.getInstance().getRatio()}");
     // print("usableHeight height:$usableHeight");
     return Consumer<AudioStatus>(
-        builder: (BuildContext context, AudioStatus audioStatus, Widget child) {
+        builder: (BuildContext context, AudioStatus audioStatus, Widget? child) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
@@ -140,7 +140,7 @@ class _BalancePageState extends State<BalancePage> {
                               audioStatus.Fader, audioStatus.Balance);
                           RFCommChannel.requestChannelSilent(dp);
                           if (this.tDragging != null) {
-                            this.tDragging.cancel();
+                            this.tDragging?.cancel();
                             this.tDragging = null;
                           }
                           if (tDragging == null) {
@@ -167,12 +167,12 @@ class _BalancePageState extends State<BalancePage> {
                         if (fader < -11) fader = -11;
                         if (fader > 11) fader = 11;
                         print("fader:$fader,balance:$balance");
-                        this.au.setFaderAndBalance(fader + 11, balance + 11);
+                        this.au?.setFaderAndBalance(fader + 11, balance + 11);
                       },
                       onPanCancel: () {
                         print("pan cancel in custom");
                         if (this.tDragging != null) {
-                          tDragging.cancel();
+                          tDragging?.cancel();
                           tDragging = null;
                         }
                         this.isDragging = false;
@@ -183,7 +183,7 @@ class _BalancePageState extends State<BalancePage> {
                       onPanEnd: (e) {
                         print("pan end in custom");
                         if (this.tDragging != null) {
-                          tDragging.cancel();
+                          tDragging?.cancel();
                           tDragging = null;
                         }
                         this.isDragging = false;
@@ -224,7 +224,7 @@ class _BalancePageState extends State<BalancePage> {
               onTapUp: (e) {
                 DataPack dp = DataPack.initFaderBalanceData(11, 11);
                 RFCommChannel.requestChannel(dp);
-                this.au.setFaderAndBalance(11, 11);
+                this.au?.setFaderAndBalance(11, 11);
                 Future.delayed(Duration(milliseconds: 100), () {
                   this.centerButtonPressed = false;
                   setState(() {});
@@ -247,7 +247,9 @@ class _BalancePageState extends State<BalancePage> {
                       height: 40))),
           DivCustom(
               margin: [0, 20, 0, 20],
-              child: Stack(children: [
+              child: Stack(
+                  clipBehavior: Clip.none, // 允许越界
+                  children: [
                 ImageCustom(
                   padding: [13, 0, 0, 0],
                   name: "k_kedu",
@@ -298,7 +300,7 @@ class _BalancePageState extends State<BalancePage> {
                           DataPack.initBassControlData(audioStatus.Bass);
                       RFCommChannel.requestChannelSilent(dp);
                       if (this.tDragging1 != null) {
-                        this.tDragging1.cancel();
+                        this.tDragging1?.cancel();
                         this.tDragging1 = null;
                       }
                       this.tDragging1 =
@@ -308,20 +310,20 @@ class _BalancePageState extends State<BalancePage> {
                             DataPack.initBassControlData(audioStatus.Bass);
                         RFCommChannel.requestChannelSilent(dp);
                       });
-                      this.au.setBass(bass + 5);
+                      this.au?.setBass(bass + 5);
                     },
                     onDragging: (handlerIndex, lowerValue, upperValue) {
                       var bass = lowerValue.round();
-                      this.au.setBass(bass + 5);
+                      this.au?.setBass(bass + 5);
                     },
                     onDragCompleted: (handlerIndex, lowerValue, upperValue) {
                       this.dragBar = -1;
                       if (tDragging1 != null) {
-                        tDragging1.cancel();
+                        tDragging1?.cancel();
                         tDragging1 = null;
                       }
                       var bass = lowerValue.round();
-                      this.au.setBass(bass + 5);
+                      this.au?.setBass(bass + 5);
                       DataPack dp = DataPack.initBassControlData(bass + 5);
                       RFCommChannel.requestChannel(dp);
                     },
@@ -329,9 +331,9 @@ class _BalancePageState extends State<BalancePage> {
                 ),
                 Positioned(
                   left: 0,
-                  top: 0,
+                  bottom: getSize(45),
                   width: getSize(110),
-                  height: getSize(10),
+                  height: getSize(50),
                   child: TextCustom(
                     text: "Bass: ${audioStatus.Bass - 5} step",
                     color: "#ffffffff",
@@ -342,7 +344,9 @@ class _BalancePageState extends State<BalancePage> {
               ])),
           DivCustom(
               margin: [15, 20, 0, 20],
-              child: Stack(children: [
+              child: Stack(
+                  clipBehavior: Clip.none, // 允许越界
+                  children: [
                 ImageCustom(
                   padding: [13, 0, 0, 0],
                   name: "k_kedu",
@@ -393,7 +397,7 @@ class _BalancePageState extends State<BalancePage> {
                           DataPack.initTrebleControlData(audioStatus.Treble);
                       RFCommChannel.requestChannelSilent(dp);
                       if (this.tDragging2 != null) {
-                        this.tDragging2.cancel();
+                        this.tDragging2?.cancel();
                         this.tDragging2 = null;
                       }
                       this.tDragging2 =
@@ -403,20 +407,20 @@ class _BalancePageState extends State<BalancePage> {
                             DataPack.initTrebleControlData(audioStatus.Treble);
                         RFCommChannel.requestChannelSilent(dp);
                       });
-                      this.au.setTreble(treble + 5);
+                      this.au?.setTreble(treble + 5);
                     },
                     onDragging: (handlerIndex, lowerValue, upperValue) {
                       var treble = lowerValue.round();
-                      this.au.setTreble(treble + 5);
+                      this.au?.setTreble(treble + 5);
                     },
                     onDragCompleted: (handlerIndex, lowerValue, upperValue) {
                       this.dragBar = -1;
                       if (tDragging2 != null) {
-                        tDragging2.cancel();
+                        tDragging2?.cancel();
                         tDragging2 = null;
                       }
                       var treble = lowerValue.round();
-                      this.au.setTreble(treble + 5);
+                      this.au?.setTreble(treble + 5);
                       DataPack dp = DataPack.initTrebleControlData(treble + 5);
                       RFCommChannel.requestChannel(dp);
                     },
@@ -424,9 +428,10 @@ class _BalancePageState extends State<BalancePage> {
                 ),
                 Positioned(
                   left: 0,
-                  top: 0,
+                  // top: -18,
+                  bottom: getSize(45),
                   width: getSize(120),
-                  height: getSize(10),
+                  height: getSize(50),
                   child: TextCustom(
                     text: "Treble: ${audioStatus.Treble - 5} step",
                     color: "#ffffffff",

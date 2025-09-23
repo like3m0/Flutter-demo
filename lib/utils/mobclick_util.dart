@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 
-void mobclickEvent(String id, {Map attributes}) {
+void mobclickEvent(String id, {required Map attributes}) {
   const methodChannel = const MethodChannel('minutescience_flutter');
   print("mobClickEvent: $attributes");
   try {

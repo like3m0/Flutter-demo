@@ -10,13 +10,13 @@ import 'package:xiangyue/widgets/custom/image_custom.dart';
 import 'package:xiangyue/widgets/custom/text_custom.dart';
 
 class _PopDialog extends Dialog {
-  final Function() dismissCallback;
-  final Widget child;
+  final VoidCallback? dismissCallback; // 用 VoidCallback 更合适
+  final Widget? child;
   final bool outsideDismiss;
   final bool backDismiss;
 
   _PopDialog(
-      {Key key,
+      {Key? key,
       this.child,
       this.outsideDismiss = false,
       this.backDismiss = false,
@@ -27,7 +27,7 @@ class _PopDialog extends Dialog {
   Widget build(BuildContext context) {
     _dismissDialog() {
       if (dismissCallback != null) {
-        dismissCallback();
+        dismissCallback!();
       }
       Navigator.of(context).pop();
     }
@@ -36,7 +36,7 @@ class _PopDialog extends Dialog {
       onWillPop: () async {
         if (backDismiss) {
           if (dismissCallback != null) {
-            dismissCallback();
+            dismissCallback!();
           }
         }
         return Future.value(backDismiss);
@@ -53,10 +53,10 @@ class _PopDialog extends Dialog {
 }
 
 showCustomDialog(BuildContext context, Widget child,
-    {Key key,
+    {Key? key,
     bool outsideDismiss = false,
     bool backDismiss = false,
-    Function dismissCallback,
+    VoidCallback? dismissCallback, // 改成可空的 VoidCallback
     Color barrierColor = const Color(0xBB000000),
     bool showCloseButton = true}) {
   showGeneralDialog(
@@ -109,7 +109,7 @@ showCustomDialog(BuildContext context, Widget child,
 }
 
 showNotifyDialog(BuildContext context, String notifyText,
-    {Function dismssCallback, Function actionCallback}) {
+    {VoidCallback? dismssCallback, VoidCallback? actionCallback}) {
   showGeneralDialog(
     context: context,
     pageBuilder: (BuildContext buildContext, Animation<double> animation,
@@ -185,7 +185,7 @@ showNotifyDialog(BuildContext context, String notifyText,
 }
 
 showCashbackDialog(BuildContext context, String userName, String amount,
-    {Function dismssCallback, Function actionCallback}) {
+    {VoidCallback? dismssCallback, VoidCallback? actionCallback}) {
   showGeneralDialog(
     context: context,
     pageBuilder: (BuildContext buildContext, Animation<double> animation,
@@ -450,11 +450,11 @@ showAchieveShareDialog(BuildContext context) {
 }
 
 showDiamondDialog(BuildContext context,
-    {String title,
-    String imageName,
-    String actionTitle,
-    Function onActionClick,
-    String content}) {
+    {String? title,
+    String? imageName,
+    String? actionTitle,
+    Function? onActionClick,
+    String? content}) {
   showGeneralDialog(
     context: context,
     pageBuilder: (BuildContext buildContext, Animation<double> animation,
@@ -480,12 +480,12 @@ showDiamondDialog(BuildContext context,
                   TextCustom(
                     scale: 0.7,
                     width: 206,
-                    text: title,
+                    text: title ?? '',
                     color: "#FF333333",
                     weight: FontWeight.bold,
                     size: 16,
                     margin: [52],
-                    textAlign: content == null ? null : TextAlign.center,
+                    textAlign: TextAlign.center,
                   ),
                   if (content != null)
                     TextCustom(
@@ -498,7 +498,7 @@ showDiamondDialog(BuildContext context,
                       textAlign: TextAlign.center,
                     ),
                   GestureDetector(
-                    onTap: () => onActionClick(),
+                    onTap: () => onActionClick!(),
                     child: DivCustom(
                       scale: 0.7,
                       margin: [0, 0, 22],
@@ -509,7 +509,7 @@ showDiamondDialog(BuildContext context,
                       x: "center",
                       child: TextCustom(
                           scale: 0.7,
-                          text: actionTitle,
+                          text: actionTitle ?? '',
                           color: "#FFFFFFFF",
                           weight: FontWeight.w500,
                           size: 16),
@@ -535,7 +535,7 @@ showDiamondDialog(BuildContext context,
   );
 }
 
-showExperimentGuide(BuildContext context, {Function dismissCallback}) {
+showExperimentGuide(BuildContext context, {VoidCallback? dismissCallback}) {
   showGeneralDialog(
     context: context,
     pageBuilder: (BuildContext buildContext, Animation<double> animation,
@@ -574,7 +574,7 @@ showExperimentGuide(BuildContext context, {Function dismissCallback}) {
                   GestureDetector(
                     onTap: () {
                       Navigator.pop(context);
-                      dismissCallback();
+                      dismissCallback!();
                     },
                     child: DivCustom(
                       scale: 0.7,
@@ -606,7 +606,7 @@ showExperimentGuide(BuildContext context, {Function dismissCallback}) {
               child: GestureDetector(
                 onTap: () {
                   Navigator.pop(context);
-                  dismissCallback();
+                  dismissCallback!();
                 },
                 child: ImageCustom(
                   width: 30,
@@ -626,7 +626,7 @@ showExperimentGuide(BuildContext context, {Function dismissCallback}) {
 }
 
 showMicphonePermission(BuildContext context,
-    {Function dismissCallback, Function clickCallback}) {
+    {VoidCallback? dismissCallback, VoidCallback? clickCallback}) {
   showGeneralDialog(
     context: context,
     pageBuilder: (BuildContext buildContext, Animation<double> animation,
@@ -681,7 +681,7 @@ showMicphonePermission(BuildContext context,
               child: GestureDetector(
                 onTap: () {
                   Navigator.pop(context);
-                  dismissCallback();
+                  dismissCallback!();
                 },
                 child: ImageCustom(
                   width: 30,
@@ -701,9 +701,9 @@ showMicphonePermission(BuildContext context,
 }
 
 showParentValidDialog(BuildContext context,
-    {Function dismissCallback, Function validSuccess}) {
+    {VoidCallback? dismissCallback, VoidCallback? validSuccess}) {
   if (!Platform.isIOS) {
-    validSuccess();
+    validSuccess!();
   }
 
   final List<String> _cnUpperNumber = [
@@ -780,7 +780,7 @@ showParentValidDialog(BuildContext context,
                                               .contains(selectedNum[0]) &&
                                           [tmp[0], tmp[1]]
                                               .contains(selectedNum[1])) {
-                                        validSuccess();
+                                        validSuccess!();
                                       }
                                     },
                                     child: DivCustom(
@@ -815,7 +815,7 @@ showParentValidDialog(BuildContext context,
                   child: GestureDetector(
                     onTap: () {
                       Navigator.pop(context);
-                      dismissCallback();
+                      dismissCallback!();
                     },
                     child: ImageCustom(
                       width: 30,

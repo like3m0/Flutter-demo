@@ -7,7 +7,7 @@ import 'package:xiangyue/widgets/custom/div_custom.dart';
 
 class TextCustom extends StatelessWidget {
   const TextCustom(
-      {Key key,
+      {Key? key,
       this.width,
       this.height,
       this.fontFamily,
@@ -26,7 +26,7 @@ class TextCustom extends StatelessWidget {
       this.radius,
       this.gradient,
       this.maxLines,
-      this.textAlign,
+      this.textAlign = TextAlign.center,
       this.overflow,
       this.boxShadow,
       this.scale = 1.0,
@@ -73,10 +73,9 @@ class TextCustom extends StatelessWidget {
       y: y,
       gradient: gradient,
       child: Text(ObjectUtil.isEmpty(text) ? '' : text,
-          textAlign: textAlign == null ? null : textAlign,
+          textAlign: textAlign,
           maxLines: maxLines,
           overflow: overflow,
-          textScaleFactor: 1.0,
           style: TextStyle(
             shadows: shadow,
             color: Color(colorInt),

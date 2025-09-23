@@ -1,23 +1,29 @@
 import 'package:flutter/material.dart';
 
-//faith 2020年04月20日11:05:57
 class NumberControllerWidget extends StatefulWidget {
-  //高度
+  /// 高度
   final double height;
-  //输入框的宽度 总体宽度为自适应
-  final double width;
-  //按钮的宽度
-  final double iconWidth;
-  //默认输入框显示的数量
-  final String numText;
-  //点击加号回调 数量
-  final ValueChanged addValueChanged;
-  //点击减号回调 数量
-  final ValueChanged removeValueChanged;
-  //点击减号任意一个回调 数量
-  final ValueChanged updateValueChanged;
 
-  NumberControllerWidget({
+  /// 输入框宽度（整体宽度自适应）
+  final double width;
+
+  /// 加减按钮宽度
+  final double iconWidth;
+
+  /// 默认显示的数量（字符串形式，内部会 tryParse）
+  final String numText;
+
+  /// 点击加号回调（当前数量）
+  final ValueChanged<int>? addValueChanged;
+
+  /// 点击减号回调（当前数量）
+  final ValueChanged<int>? removeValueChanged;
+
+  /// 每次数量变化后的统一回调（当前数量）
+  final ValueChanged<int>? updateValueChanged;
+
+  const NumberControllerWidget({
+    super.key,
     this.height = 30,
     this.width = 40,
     this.iconWidth = 40,
@@ -26,18 +32,32 @@ class NumberControllerWidget extends StatefulWidget {
     this.removeValueChanged,
     this.updateValueChanged,
   });
+
   @override
-  _NumberControllerWidgetState createState() => _NumberControllerWidgetState();
+  State<NumberControllerWidget> createState() => _NumberControllerWidgetState();
 }
 
 class _NumberControllerWidgetState extends State<NumberControllerWidget> {
-  var textController = new TextEditingController();
+  late final TextEditingController _textController;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    this.textController.text = widget.numText;
+    _textController = TextEditingController(text: widget.numText);
+  }
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
+  }
+
+  int _currentValue() => int.tryParse(_textController.text) ?? 0;
+
+  void _setValue(int v) {
+    if (v < 0) v = 0; // 不允许负数
+    _textController.text = '$v';
+    widget.updateValueChanged?.call(v);
   }
 
   @override
@@ -47,67 +67,72 @@ class _NumberControllerWidgetState extends State<NumberControllerWidget> {
         Container(
           height: widget.height,
           decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(4),
-              border: Border.all(width: 1, color: Colors.black12)),
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(width: 1, color: Colors.black12),
+          ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              //减号
-              CoustomIconButton(icon: Icons.remove, isAdd: false),
-              //输入框
+              // 减号
+              _customIconButton(icon: Icons.remove, isAdd: false),
+              // 输入框
               Container(
                 width: widget.width,
-                decoration: BoxDecoration(
-                    border: Border(
-                        left: BorderSide(width: 1, color: Colors.black12),
-                        right: BorderSide(width: 1, color: Colors.black12))),
-                child: TextField(
-                  controller: textController,
-                  keyboardType: TextInputType.number,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 12),
-                  enableInteractiveSelection: false,
-                  decoration: InputDecoration(
-                    contentPadding:
-                        EdgeInsets.only(left: 0, top: 2, bottom: 2, right: 0),
-                    border: const OutlineInputBorder(
-                      gapPadding: 0,
-                      borderSide: BorderSide(
-                        width: 0,
-                        style: BorderStyle.none,
-                      ),
-                    ),
+                decoration: const BoxDecoration(
+                  border: Border(
+                    left: BorderSide(width: 1, color: Colors.black12),
+                    right: BorderSide(width: 1, color: Colors.black12),
                   ),
                 ),
+                child: TextField(
+                  controller: _textController,
+                  keyboardType: TextInputType.number,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 12),
+                  enableInteractiveSelection: false,
+                  decoration: const InputDecoration(
+                    isDense: true,
+                    contentPadding: EdgeInsets.only(left: 0, top: 2, bottom: 2, right: 0),
+                    border: OutlineInputBorder(
+                      gapPadding: 0,
+                      borderSide: BorderSide(width: 0, style: BorderStyle.none),
+                    ),
+                  ),
+                  onChanged: (s) {
+                    final v = int.tryParse(s) ?? 0;
+                    _setValue(v);
+                  },
+                ),
               ),
-              //加号
-              CoustomIconButton(icon: Icons.add, isAdd: true),
+              // 加号
+              _customIconButton(icon: Icons.add, isAdd: true),
             ],
           ),
-        )
+        ),
       ],
     );
   }
 
-  Widget CoustomIconButton({IconData icon, bool isAdd}) {
-    return Container(
+  Widget _customIconButton({required IconData icon, required bool isAdd}) {
+    return SizedBox(
       width: widget.iconWidth,
       child: IconButton(
-        padding: EdgeInsets.all(0),
-        icon: Icon(icon),
+        padding: EdgeInsets.zero,
+        icon: Icon(icon, size: 18),
         onPressed: () {
-          var num = int.parse(textController.text);
+          var num = _currentValue();
           if (!isAdd && num == 0) return;
+
           if (isAdd) {
             num++;
-            if (widget.addValueChanged != null) widget.addValueChanged(num);
+            widget.addValueChanged?.call(num);
           } else {
             num--;
-            if (widget.removeValueChanged != null)
-              widget.removeValueChanged(num);
+            if (num < 0) num = 0;
+            widget.removeValueChanged?.call(num);
           }
-          textController.text = '$num';
-          if (widget.updateValueChanged != null) widget.updateValueChanged(num);
+
+          _setValue(num);
         },
       ),
     );

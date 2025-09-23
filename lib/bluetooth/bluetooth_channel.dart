@@ -11,41 +11,41 @@ class RFCommChannel {
   AudioStatus applicationStatus;
   BluetoothConnection connection;
   List<DataPack> packToSend = <DataPack>[];
-  DataPack packToInsert = null;
-  DataPack packPending = null;
-  DataPack received = null;
+  DataPack? packToInsert;
+  DataPack? packPending;
+  DataPack? received ;
 
   int retryCount = 0;
 
-  static RFCommChannel _instance = null;
-  Completer<DataPack> _completer;
+  static RFCommChannel? _instance;
+  Completer<DataPack>? _completer;
   bool isSending = false;
   bool isRetrying = false;
-  Timer _timer;
-  Timer _heartBeat_timer = null;
-  DateTime lastHBTime = null;
+  Timer? _timer;
+  Timer? _heartBeat_timer;
+  DateTime? lastHBTime;
 
   //构造函数
   RFCommChannel(BluetoothConnection conn, AudioStatus status)
       : connection = conn,
         applicationStatus = status;
 
-  static RFCommChannel getInstance() {
+  static RFCommChannel? getInstance() {
     return _instance;
   }
 
   static void resetChannel() {
     if (_instance != null) {
-      if (_instance.connection != null) {
-        _instance.connection.close();
+      if (_instance?.connection != null) {
+        _instance?.connection.close();
       }
-      if (_instance._timer != null) {
-        _instance._timer.cancel();
-        _instance._timer = null;
+      if (_instance?._timer != null) {
+        _instance?._timer?.cancel();
+        _instance?._timer;
       }
-      if (_instance._heartBeat_timer != null) {
-        _instance._heartBeat_timer.cancel();
-        _instance._heartBeat_timer = null;
+      if (_instance?._heartBeat_timer != null) {
+        _instance?._heartBeat_timer?.cancel();
+        _instance?._heartBeat_timer = null;
       }
       _instance = null;
     }
@@ -55,53 +55,53 @@ class RFCommChannel {
     resetChannel();
     print(conn.output);
     _instance = new RFCommChannel(conn, status);
-    _instance.applicationStatus.setConnectStauts(true);
+    _instance?.applicationStatus.setConnectStauts(true);
     print("register listen stream here!!!!!!!!!");
-    _instance.connection.input.listen((data) {
+    _instance?.connection.input?.listen((data) {
       var s = "receive data:\n";
       DataPack dp = DataPack.fromIntList(data.toList());
-      _instance.receivePack(dp);
+      _instance?.receivePack(dp);
       print(s + dp.toString());
     }, onDone: () {
       //notify UI connection is corrupt here
       print("connection is corrupt, need reinit!");
       if (_instance != null) {
-        _instance.applicationStatus.setConnectStauts(false);
+        _instance?.applicationStatus.setConnectStauts(false);
       }
       resetChannel();
     }, onError: (obj, stackTrace) {
       print("receive error:" + stackTrace.toString());
-      _instance.isSending = false;
+      _instance?.isSending = false;
     });
     // 开始循环发送数据
-    _instance._timer = Timer.periodic(Duration(milliseconds: 100), (timer) {
+    _instance?._timer = Timer.periodic(Duration(milliseconds: 100), (timer) {
       ///自增
-      _instance.checkAndSendDataAsync();
+      _instance?.checkAndSendDataAsync();
       // _instance.checkAndSendRetryVersion();
     });
 
-    Future.delayed(Duration(milliseconds: 200), () {
-      _instance.lastHBTime = DateTime.now();
-      _instance._heartBeat_timer =
+    Timer(Duration(milliseconds: 200), () {
+      _instance?.lastHBTime = DateTime.now();
+      _instance?._heartBeat_timer =
           Timer.periodic(Duration(seconds: 1), (timer) {
         DataPack dp = DataPack.initHeartBeat();
-        _instance.addPack(dp);
+        _instance?.addPack(dp);
 
         //判断是否没有接受到心跳已达3秒
         DateTime dt = DateTime.now();
         var delta = dt.millisecondsSinceEpoch -
-            _instance.lastHBTime.millisecondsSinceEpoch;
+            (_instance?.lastHBTime?.millisecondsSinceEpoch ?? 0);
         print("heart beat delta time in milliseconds:" + delta.toString());
         if (delta > 30000) {
-          BuildContext ctx = navigatorKey.currentState.overlay.context;
-          showNotifyDialog(ctx, '''Display Audio is not responding. 
+          BuildContext? ctx = navigatorKey.currentState?.overlay?.context;
+          showNotifyDialog(ctx!, '''Display Audio is not responding. 
 Please check connection
 with Display Audio.''');
-          _instance.applicationStatus.setConnectStauts(false);
+          _instance?.applicationStatus.setConnectStauts(false);
           RFCommChannel.resetChannel();
         }
       });
-      print("begin heart beat counting at:" + _instance.lastHBTime.toString());
+      print("begin heart beat counting at:" + _instance!.lastHBTime!.toString());
     });
   }
 
@@ -115,7 +115,7 @@ with Display Audio.''');
     } else if (dp.bufferLen == 0) {
       //receive heart beat response
       DateTime dt = DateTime.now();
-      _instance.lastHBTime = dt;
+      _instance?.lastHBTime = dt;
       print("receive heart beat response at:" + dt.toString());
     }
     // else if (dp.commandId == 0x20 && dp.data[0] == 0) {
@@ -135,18 +135,27 @@ with Display Audio.''');
   }
 
   Future<DataPack> sendPack(DataPack dp) {
-    _completer = Completer<DataPack>();
-    print("**********send pack:" + dp.toString());
+    // 如果上一笔还没结束，可以按需取消/报错
+    if (_completer != null && !_completer!.isCompleted) {
+      _completer!.completeError(StateError('Previous request was superseded'));
+    }
+
+    final completer = Completer<DataPack>();
+    _completer = completer;
+
+    print("**********send pack: $dp");
     connection.output.add(dp.toByteArray());
-    Future.delayed(Duration(milliseconds: 500), () {
-      //500ms未接收结果，则视为失败
-      if (_completer != null) {
-        if (_completer.isCompleted == false) {
-          _completer.complete(null);
-        }
+
+    // 500ms 未返回就视为超时
+    Timer(const Duration(milliseconds: 500), () {
+      if (!completer.isCompleted) {
+        completer.completeError(
+          TimeoutException('No response within 500 ms'),
+        );
       }
     });
-    return _completer.future;
+
+    return completer.future; // ✅ 一定是非空
   }
 
   void addPack(DataPack dp) {
@@ -213,14 +222,14 @@ with Display Audio.''');
     if (getInstance() == null) {
       if (!isToast) {
         isToast = true;
-        Future.delayed(Duration(milliseconds: 100), () {
-          BuildContext ctx = navigatorKey.currentState.overlay.context;
+        Timer(Duration(milliseconds: 100), () {
+          BuildContext? ctx = navigatorKey.currentState?.overlay?.context;
           if (ctx != null) {
             showNotifyDialog(ctx, '''No device connected.
 Please establish connection
 with Display Audio.''');
           } else {
-            Future.delayed(Duration(seconds: 3), () {
+            Timer(Duration(seconds: 3), () {
               isToast = false;
             });
           }
@@ -229,7 +238,7 @@ with Display Audio.''');
       }
       return false;
     }
-    getInstance().addPack(dp);
+    getInstance()?.addPack(dp);
     return true;
   }
 
@@ -238,6 +247,6 @@ with Display Audio.''');
     if (getInstance() == null) {
       return;
     }
-    getInstance().addPack(dp);
+    getInstance()?.addPack(dp);
   }
 }

@@ -25,25 +25,25 @@ class _EQPageState extends State<EQPage> {
   int selectedCustomIndex = -1;
   List<int> currentFreq = [0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-  Timer tDragging = null;
-  Color barColor;
+  Timer? tDragging = null;
+  Color? barColor;
   bool showHandler = false;
   int pressedButtonIndex = -1;
 
-  AudioStatus au = null;
+  AudioStatus? au = null;
   bool freqInited = false;
 
   @override
   void initState() {
     super.initState();
     this.au = Provider.of<AudioStatus>(context, listen: false);
-    if (au.EQIndex == 6) {
+    if (au?.EQIndex == 6) {
       for (var i = 0; i < 9; i++) {
-        this.currentFreq[i] = au.freqCustom1[i] - 12;
+        this.currentFreq[i] = (au!.freqCustom1[i] - 12);
       }
-    } else if (au.EQIndex == 7) {
+    } else if (au?.EQIndex == 7) {
       for (var i = 0; i < 9; i++) {
-        this.currentFreq[i] = au.freqCustom2[i] - 12;
+        this.currentFreq[i] = (au!.freqCustom2[i] - 12);
       }
     }
   }
@@ -140,8 +140,8 @@ class _EQPageState extends State<EQPage> {
                             this.selectedCustomIndex = index;
                             this.currentFreq[index] = lowerValue.round();
                             if (this.tDragging != null) {
-                              this.tDragging.cancel();
-                              this.tDragging = null;
+                              tDragging?.cancel();
+                              tDragging = null;
                             }
                             if (this.tDragging == null) {
                               this.tDragging = Timer.periodic(
@@ -164,7 +164,7 @@ class _EQPageState extends State<EQPage> {
                         onDragCompleted:
                             (handlerIndex, lowerValue, upperValue) {
                           if (this.tDragging != null) {
-                            tDragging.cancel();
+                            tDragging?.cancel();
                             tDragging = null;
                           }
                           this.currentFreq[index] = lowerValue.round();
@@ -210,7 +210,7 @@ class _EQPageState extends State<EQPage> {
     for (var i = 0; i < 9; i++) {
       saveFreq[i] = this.currentFreq[i] + 12;
     }
-    this.au.setCustomFreq(whichCustom, saveFreq);
+    this.au?.setCustomFreq(whichCustom, saveFreq);
     showNotifyDialog(context, "Custom data is saved.");
   }
 
@@ -219,7 +219,7 @@ class _EQPageState extends State<EQPage> {
     return GestureDetector(
       onTapDown: (e) {
         if (this.tDragging != null) {
-          this.tDragging.cancel();
+          this.tDragging?.cancel();
           this.tDragging = null;
         }
         if (index == auNow.EQIndex) {
@@ -248,7 +248,7 @@ class _EQPageState extends State<EQPage> {
         }
         DataPack dp = DataPack.initEQData(index);
         RFCommChannel.requestChannel(dp);
-        this.au.setEQ(index);
+        this.au?.setEQ(index);
         this.barColor = Color(0x00000000);
         this.showHandler = false;
         if (index >= 6) {
@@ -292,7 +292,7 @@ class _EQPageState extends State<EQPage> {
     // usableHeight = 255;
 
     return Consumer<AudioStatus>(
-        builder: (BuildContext context, AudioStatus audioStatus, Widget child) {
+        builder: (BuildContext context, AudioStatus audioStatus, Widget? child) {
       if (audioStatus.EQIndex >= 6) {
         // 择中custom1或者custom2
         if (this.freqInited == false) {

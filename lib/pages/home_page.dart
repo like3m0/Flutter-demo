@@ -18,7 +18,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int pressedButton = -1; //状态：目前哪个按钮被按下
   int pressTick = 0;
-  Timer tPressed = null;
+  Timer? tPressed = null;
   @override
   void initState() {
     super.initState();
@@ -152,8 +152,8 @@ class _HomePageState extends State<HomePage> {
                 return;
               }
               if (this.tPressed != null) {
-                this.tPressed.cancel();
-                this.tPressed = null;
+                tPressed?.cancel();
+                tPressed = null;
               }
               this.pressedButton = 1;
               this.pressTick++;
@@ -176,8 +176,8 @@ class _HomePageState extends State<HomePage> {
                 dp.data[1] = 0x01;
                 RFCommChannel.requestChannel(dp);
                 if (this.tPressed != null) {
-                  this.tPressed.cancel();
-                  this.tPressed = null;
+                  tPressed?.cancel();
+                  tPressed = null;
                 }
                 this.tPressed =
                     Timer.periodic(Duration(milliseconds: 100), (timer) {
@@ -199,8 +199,8 @@ class _HomePageState extends State<HomePage> {
                 return;
               }
               if (this.tPressed != null) {
-                this.tPressed.cancel();
-                this.tPressed = null;
+                tPressed?.cancel();
+                tPressed = null;
               }
               Future.delayed(Duration(milliseconds: 100), () {
                 DataPack dp = DataPack.initVolumnControlData();
@@ -217,8 +217,8 @@ class _HomePageState extends State<HomePage> {
                 return;
               }
               if (this.tPressed != null) {
-                this.tPressed.cancel();
-                this.tPressed = null;
+                tPressed?.cancel();
+                tPressed = null;
               }
               DataPack dp = DataPack.initVolumnControlData();
               dp.data[0] = 0x14;
@@ -247,8 +247,8 @@ class _HomePageState extends State<HomePage> {
                     return;
                   }
                   if (this.tPressed != null) {
-                    this.tPressed.cancel();
-                    this.tPressed = null;
+                    tPressed?.cancel();
+                    tPressed = null;
                   }
                   this.pressedButton = 2;
                   this.pressTick++;
@@ -272,8 +272,8 @@ class _HomePageState extends State<HomePage> {
                     RFCommChannel.requestChannel(dp);
                     // 启动定时任务，每500毫秒发送一次按住指令
                     if (this.tPressed != null) {
-                      this.tPressed.cancel();
-                      this.tPressed = null;
+                      tPressed?.cancel();
+                      tPressed = null;
                     }
                     this.tPressed =
                         Timer.periodic(Duration(milliseconds: 100), (timer) {
@@ -294,8 +294,8 @@ class _HomePageState extends State<HomePage> {
                     return;
                   }
                   if (this.tPressed != null) {
-                    this.tPressed.cancel();
-                    this.tPressed = null;
+                    tPressed?.cancel();
+                    tPressed = null;
                   }
                   Future.delayed(Duration(milliseconds: 100), () {
                     DataPack dp = DataPack.initVolumnControlData();
@@ -312,8 +312,8 @@ class _HomePageState extends State<HomePage> {
                     return;
                   }
                   if (this.tPressed != null) {
-                    this.tPressed.cancel();
-                    this.tPressed = null;
+                    tPressed?.cancel();
+                    tPressed = null;
                   }
                   DataPack dp = DataPack.initVolumnControlData();
                   dp.data[0] = 0x15;
@@ -342,8 +342,8 @@ class _HomePageState extends State<HomePage> {
                     return;
                   }
                   if (this.tPressed != null) {
-                    this.tPressed.cancel();
-                    this.tPressed = null;
+                    tPressed?.cancel();
+                    tPressed = null;
                   }
                   this.pressedButton = 3;
                   this.pressTick++;
@@ -367,8 +367,8 @@ class _HomePageState extends State<HomePage> {
                     RFCommChannel.requestChannel(dp);
                     // 启动定时任务，每500毫秒发送一次按住指令
                     if (this.tPressed != null) {
-                      this.tPressed.cancel();
-                      this.tPressed = null;
+                      tPressed?.cancel();
+                      tPressed = null;
                     }
                     this.tPressed =
                         Timer.periodic(Duration(milliseconds: 100), (timer) {
@@ -389,8 +389,8 @@ class _HomePageState extends State<HomePage> {
                     return;
                   }
                   if (this.tPressed != null) {
-                    this.tPressed.cancel();
-                    this.tPressed = null;
+                    tPressed?.cancel();
+                    tPressed = null;
                   }
                   Future.delayed(Duration(milliseconds: 100), () {
                     DataPack dp = DataPack.initVolumnControlData();
@@ -407,8 +407,8 @@ class _HomePageState extends State<HomePage> {
                     return;
                   }
                   if (this.tPressed != null) {
-                    this.tPressed.cancel();
-                    this.tPressed = null;
+                    tPressed?.cancel();
+                    tPressed = null;
                   }
                   DataPack dp = DataPack.initVolumnControlData();
                   dp.data[0] = 0x13;
@@ -436,8 +436,8 @@ class _HomePageState extends State<HomePage> {
                     return;
                   }
                   if (this.tPressed != null) {
-                    this.tPressed.cancel();
-                    this.tPressed = null;
+                    tPressed?.cancel();
+                    tPressed = null;
                   }
                   this.pressedButton = 4;
                   this.pressTick++;
@@ -461,8 +461,8 @@ class _HomePageState extends State<HomePage> {
                     RFCommChannel.requestChannel(dp);
                     // 启动定时任务，每500毫秒发送一次按住指令
                     if (this.tPressed != null) {
-                      this.tPressed.cancel();
-                      this.tPressed = null;
+                      tPressed?.cancel();
+                      tPressed = null;
                     }
                     this.tPressed =
                         Timer.periodic(Duration(milliseconds: 100), (timer) {
@@ -483,8 +483,8 @@ class _HomePageState extends State<HomePage> {
                     return;
                   }
                   if (this.tPressed != null) {
-                    this.tPressed.cancel();
-                    this.tPressed = null;
+                    tPressed?.cancel();
+                    tPressed = null;
                   }
                   Future.delayed(Duration(milliseconds: 100), () {
                     DataPack dp = DataPack.initVolumnControlData();
@@ -501,8 +501,8 @@ class _HomePageState extends State<HomePage> {
                     return;
                   }
                   if (this.tPressed != null) {
-                    this.tPressed.cancel();
-                    this.tPressed = null;
+                    tPressed?.cancel();
+                    tPressed = null;
                   }
                   DataPack dp = DataPack.initVolumnControlData();
                   dp.data[0] = 0x12;

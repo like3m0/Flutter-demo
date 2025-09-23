@@ -11,7 +11,7 @@ abstract class Processor<T> {
   Processor(this.isList, {this.objGenerateFun});
 
   bool isList;
-  ObjGenerateFun<T> objGenerateFun;
+  ObjGenerateFun<T>? objGenerateFun;
 
   success(Response response) => response; // 成功数据处理
 
@@ -49,11 +49,11 @@ class BaseRespList<T> {
 
 /// 实现默认处理器
 class BaseProcessor<T> extends Processor<T> {
-  BaseProcessor(bool isList, {ObjGenerateFun<T> fun})
+  BaseProcessor(bool isList, {ObjGenerateFun<T>? fun})
       : super(isList, objGenerateFun: fun);
 
   @override
-  ObjGenerateFun<T> get objGenerateFun => super.objGenerateFun;
+  ObjGenerateFun<T>? get objGenerateFun => super.objGenerateFun;
 
   // 转换json
   Map<String, dynamic> decodeData(Response response) {
@@ -67,12 +67,12 @@ class BaseProcessor<T> extends Processor<T> {
 
   @override
   success(Response response) {
-    int _status = response.statusCode;
+    int? _status = response.statusCode;
     int _code = 0;
     String _msg = "";
     // List数据处理 [{...},{...}]
     if (isList) {
-      List<T> _data = new List<T>();
+       List<T> _data = <T>[];
       if (response.data is List) {
         _code = 200;
         _msg = '成功';
@@ -81,25 +81,25 @@ class BaseProcessor<T> extends Processor<T> {
         } else {
           if (response.data != null) {
             _data = (response.data as List)
-                .map<T>((v) => objGenerateFun(v))
+                .map<T>((v) => objGenerateFun!(v))
                 .toList();
           }
         }
       }
-      return BaseRespList(_status, _code, _msg, _data);
+      return BaseRespList(_status!, _code, _msg, _data);
     } else {
       // 普通数据处理 {...}
-      T _data = objGenerateFun({});
+      T _data = objGenerateFun!({});
       if (response.data is Map) {
         _code = -1;
         _msg = '';
         if (T.toString() == 'dynamic') {
           _data = response.data;
         } else {
-          _data = objGenerateFun(response.data);
+          _data = objGenerateFun!(response.data);
         }
       }
-      return BaseResp(_status, _code, _msg, _data);
+      return BaseResp(_status!, _code, _msg, _data);
     }
   }
 

@@ -26,9 +26,9 @@ import 'package:xiangyue/utils/pop_dialog.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class MainIndexPage extends StatefulWidget {
-  MainIndexPage({Key key, this.title}) : super(key: key);
+  MainIndexPage({Key? key, this.title}) : super(key: key);
 
-  final String title;
+  final String? title;
 
   @override
   MainIndexPageState createState() => MainIndexPageState();
@@ -126,6 +126,9 @@ class MainIndexPageState extends State<MainIndexPage>
           RFCommChannel.requestChannel(dp);
         }
         break;
+      case AppLifecycleState.hidden: // 👈 新增的枚举值
+      // 你可以按需要处理，或者留空
+        break;
     }
   }
 
@@ -160,7 +163,7 @@ class MainIndexPageState extends State<MainIndexPage>
   }
 
   void setCurrentPageIndex(int index) {
-    DataPack dp = null;
+    DataPack? dp;
     if ((this.currentPageIndex == 0 || this.currentPageIndex == 3) &&
         (index == 1 || index == 2)) {
       dp = DataPack.enterSound();
@@ -518,7 +521,7 @@ class MainIndexPageState extends State<MainIndexPage>
                                     this.menuClicked = 0;
                                     setState(() {});
 
-                                    bool btEnable = await FlutterBluetoothSerial
+                                    bool? btEnable = await FlutterBluetoothSerial
                                         .instance.isEnabled;
                                     if (Provider.of<AudioStatus>(context,
                                                 listen: false)
@@ -532,7 +535,7 @@ class MainIndexPageState extends State<MainIndexPage>
                                     //       "No device connected. please establish connection with Display Audio.");
                                     // }
                                     else {
-                                      AppSettings.openBluetoothSettings();
+                                      AppSettings.openAppSettings();
                                     }
                                   },
                                   child: DivCustom(

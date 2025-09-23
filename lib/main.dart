@@ -1,10 +1,9 @@
 import 'dart:io';
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flustars/flustars.dart';
-import 'package:auto_orientation/auto_orientation.dart';
+import 'package:auto_orientation_v2/auto_orientation_v2.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:xiangyue/bluetooth/audio_status.dart';
 import 'package:xiangyue/localizations.dart';
@@ -60,7 +59,11 @@ class _MyAppState extends State<MyApp> {
     setDesignWHD(375, designHeight, density: 1);
     print("sw:$screenWidth, sh:$screenHeight, dh: $designHeight");
     // setDesignWHD(375, 750, density: 1);
-    SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.top]);
+    // SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.top]);
+     SystemChrome.setEnabledSystemUIMode(
+           SystemUiMode.manual,
+           overlays: [SystemUiOverlay.top],
+         );
     return MaterialApp(
       navigatorKey: navigatorKey,
       title: 'DA Remote II',
