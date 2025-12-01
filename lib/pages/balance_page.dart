@@ -331,7 +331,7 @@ class _BalancePageState extends State<BalancePage> {
                 ),
                 Positioned(
                   left: 0,
-                  bottom: getSize(45),
+                  bottom: getSize(50),
                   width: getSize(110),
                   height: getSize(50),
                   child: TextCustom(
@@ -428,14 +428,14 @@ class _BalancePageState extends State<BalancePage> {
                 ),
                 Positioned(
                   left: 0,
-                  // top: -18,
-                  bottom: getSize(45),
+                  // top: 0,
+                  bottom: getSize(50),
                   width: getSize(120),
                   height: getSize(50),
                   child: TextCustom(
                     text: "Treble: ${audioStatus.Treble - 5} step",
                     color: "#ffffffff",
-                    size: 16,
+                    size: 15,
                     textAlign: TextAlign.left,
                   ),
                 ),

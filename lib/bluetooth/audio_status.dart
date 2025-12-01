@@ -1,6 +1,11 @@
+import 'dart:async';
 import 'dart:core';
+import 'dart:typed_data';
+import 'dart:io';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:xiangyue/bluetooth/bluetooth_channel.dart';
 
 class AudioStatus extends ChangeNotifier {
@@ -13,6 +18,8 @@ class AudioStatus extends ChangeNotifier {
   var EQIndex = -1;
   var freqCustom1 = [12, 12, 12, 12, 12, 12, 12, 12, 12];
   var freqCustom2 = [12, 12, 12, 12, 12, 12, 12, 12, 12];
+
+  static const String carAddress = "F8:6B:14:7A:22:E4";  // 修改为你的实际地址
 
   void setConnectStauts(bool status) {
     print("set connect status to: [$status]");
@@ -53,7 +60,7 @@ class AudioStatus extends ChangeNotifier {
   }
 
   void readDataFromDA(List<int> data) {
-    //调用蓝牙，获取状态数据
+    // 调用蓝牙，获取状态数据
     print("read from data");
     Bass = data[1];
     Treble = data[2];
@@ -65,25 +72,86 @@ class AudioStatus extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<bool> _requestBluetoothPermissions() async {
+    if (Platform.isAndroid) {
+      final statuses = await [
+        Permission.bluetooth,
+        Permission.bluetoothConnect,
+        Permission.bluetoothScan,
+        Permission.bluetoothAdvertise,
+        Permission.location, // 有些机型要这个才能正常蓝牙
+      ].request();
+
+      bool allGranted = true;
+      statuses.forEach((key, status) {
+        print("[BT][PERM] $key = $status");
+        if (!status.isGranted) {
+          allGranted = false;
+        }
+      });
+      return allGranted;
+    }
+    return true;
+  }
+
   void listen() async {
-    if (this.isListening) {
-      print("is listening, return");
+    if (isListening) {
+      print("[AudioStatus] is listening, return");
       return;
     }
-    print("now begin to listen..........");
-    this.isListening = true;
+
+    print("[AudioStatus] now begin to listen..........");
+    isListening = true;
+
+    // 1. 申请权限
+    bool permsOk = await _requestBluetoothPermissions();
+    if (!permsOk) {
+      print("[BT][ERROR] Bluetooth permissions not granted, abort listen.");
+      setConnectStauts(false);
+      isListening = false;
+      return;
+    }
+
     try {
-      BluetoothConnection conn = await BluetoothConnection.listen(
-          "00001101-0000-1000-8000-00805F9B34FB");
-      if (conn != null) {
-        print("listen successful! create channel");
-        RFCommChannel.initChannel(conn, this);
+      // 2. 确保蓝牙开着
+      final enabled = await FlutterBluetoothSerial.instance.isEnabled;
+      if (enabled != true) {
+        print("[BT] Bluetooth not enabled, requesting enable...");
+        await FlutterBluetoothSerial.instance.requestEnable();
       }
-      this.isListening = false;
-    } catch (e) {
-      print("listen failed with exception");
-      print(e.toString());
-      this.isListening = false;
+
+      // 3. （可选）让手机可被发现一段时间，方便车机连过来
+      //    有些车机会“挑”当前可发现的设备
+      print("[BT] request discoverable for 120s ...");
+      await FlutterBluetoothSerial.instance.requestDiscoverable(120);
+
+      print("[AudioStatus] about to call BluetoothConnection.listen(...)");
+
+      // 4. 给 listen 加一个 30 秒超时，避免一直卡死
+      BluetoothConnection conn = await BluetoothConnection
+          .listen("00001101-0000-1000-8000-00805F9B34FB")
+          .timeout(const Duration(seconds: 30));
+
+      print("[BT] listen returned, isConnected=${conn.isConnected}");
+
+      if (conn.isConnected) {
+        print("[BT] client connected, create RFCommChannel");
+        setConnectStauts(true);
+        RFCommChannel.initChannel(conn, this);
+      } else {
+        print("[BT][WARN] listen returned but connection is not connected");
+        setConnectStauts(false);
+      }
+    } on TimeoutException catch (e) {
+      print("[BT][ERROR] listen timeout, no device connected within 30s: $e");
+      setConnectStauts(false);
+    } catch (e, s) {
+      print("[BT][ERROR] listen failed with exception: $e");
+      print(s);
+      setConnectStauts(false);
+    } finally {
+      isListening = false;
     }
   }
+
 }

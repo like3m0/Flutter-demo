@@ -82,7 +82,7 @@ class _AboutPageState extends State<AboutPage> {
           child: TextCustom(
               margin: [200, 20, 50, 20],
               padding: [0, 5, 0, 5],
-              text: "Version 1.1.3",
+              text: "Version 1.1.4",
               size: 23),
         ),
       ],
