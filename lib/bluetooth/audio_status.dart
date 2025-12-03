@@ -79,7 +79,7 @@ class AudioStatus extends ChangeNotifier {
         Permission.bluetoothConnect,
         Permission.bluetoothScan,
         Permission.bluetoothAdvertise,
-        Permission.location, // 有些机型要这个才能正常蓝牙
+        // Permission.location, // 有些机型要这个才能正常蓝牙
       ].request();
 
       bool allGranted = true;
@@ -93,7 +93,13 @@ class AudioStatus extends ChangeNotifier {
     }
     return true;
   }
-
+  Future<void> debugPerms() async {
+    print("[BT][PERM] bluetooth = ${await Permission.bluetooth.status}");
+    print("[BT][PERM] connect  = ${await Permission.bluetoothConnect.status}");
+    print("[BT][PERM] scan     = ${await Permission.bluetoothScan.status}");
+    print("[BT][PERM] adv      = ${await Permission.bluetoothAdvertise.status}");
+    print("[BT][PERM] location = ${await Permission.location.status}");
+  }
   void listen() async {
     if (isListening) {
       print("[AudioStatus] is listening, return");
@@ -105,6 +111,7 @@ class AudioStatus extends ChangeNotifier {
 
     // 1. 申请权限
     bool permsOk = await _requestBluetoothPermissions();
+    await debugPerms();
     if (!permsOk) {
       print("[BT][ERROR] Bluetooth permissions not granted, abort listen.");
       setConnectStauts(false);
@@ -123,14 +130,13 @@ class AudioStatus extends ChangeNotifier {
       // 3. （可选）让手机可被发现一段时间，方便车机连过来
       //    有些车机会“挑”当前可发现的设备
       print("[BT] request discoverable for 120s ...");
-      await FlutterBluetoothSerial.instance.requestDiscoverable(120);
+      // await FlutterBluetoothSerial.instance.requestDiscoverable(180);
 
       print("[AudioStatus] about to call BluetoothConnection.listen(...)");
 
       // 4. 给 listen 加一个 30 秒超时，避免一直卡死
       BluetoothConnection conn = await BluetoothConnection
-          .listen("00001101-0000-1000-8000-00805F9B34FB")
-          .timeout(const Duration(seconds: 30));
+          .listen("00001101-0000-1000-8000-00805F9B34FB");
 
       print("[BT] listen returned, isConnected=${conn.isConnected}");
 
